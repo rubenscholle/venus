@@ -1,1 +1,5 @@
 /.vscode
+.bash_history
+/test
+*.exe
+*.bin
