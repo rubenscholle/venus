@@ -1,7 +1,17 @@
 package main
 
-import "log"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	log.Println("hello world!")
+	router := gin.Default()
+	router.GET("/hello-world", helloWorldHandler)
+	router.Run(":7901")
+}
+
+func helloWorldHandler(c *gin.Context) {
+	c.String(http.StatusOK, "hello world!")
 }
