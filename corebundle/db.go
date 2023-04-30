@@ -1,0 +1,3 @@
+package corebundle
+
+func initDb() {}
