@@ -39,7 +39,7 @@ func InitDb() *gorm.DB {
 		return InitDb()
 	}
 
-	log.Println("databased initialized succesfully")
+	log.Println("initializing database complete")
 
 	return ormDb
 }
