@@ -8,6 +8,6 @@ type DatabaseConfiguration struct {
 	Host     string `json:"host"`
 	Port     uint   `json:"port"`
 	User     string `json:"user"`
-	Password string `json:"pwassword"`
+	Password string `json:"password"`
 	Name     string `json:"name"`
 }

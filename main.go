@@ -16,6 +16,8 @@ func main() {
 		log.Println(err)
 	}
 
+	core.OrmDb = core.InitDb()
+
 	log.Println("starting server...")
 
 	router := gin.Default()
