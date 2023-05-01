@@ -23,9 +23,13 @@ func main() {
 
 	router := gin.Default()
 
-	authbundle.InitBundle(router.Group("/auth"), core.OrmDb)
+	publicRoutes := router.Group("/auth")
+	protectedRoutes := router.Group("/api/v1")
+	protectedRoutes.Use(authbundle.Middleware())
 
-	router.GET("/hello-world", helloWorldHandler)
+	authbundle.InitBundle(publicRoutes, protectedRoutes.Group("auth"), core.OrmDb)
+
+	protectedRoutes.GET("/hello-world", helloWorldHandler)
 	router.Run(":7901")
 }
 

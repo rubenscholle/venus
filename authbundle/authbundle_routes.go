@@ -5,8 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitBundle(rg *gin.RouterGroup, ormDb *gorm.DB) {
+func InitBundle(publicRoutes, protectedRoutes *gin.RouterGroup, ormDb *gorm.DB) {
 	con := newAuthController(ormDb)
 
-	rg.POST("/login", con.LoginHandler)
+	publicRoutes.POST("/login", con.LoginHandler)
 }
