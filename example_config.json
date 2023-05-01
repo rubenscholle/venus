@@ -1,0 +1,14 @@
+{
+    "server": {
+        "//token_ttl": "days until token expires",
+        "token_ttl": 30, 
+        "jwt_private_key": "YOUR_SECRET"
+    },
+    "database": {
+        "host": "your_host",
+        "port": 3306,
+        "user": "your_user",
+        "password": "your_password",
+        "name": "database_name"
+    }
+}
