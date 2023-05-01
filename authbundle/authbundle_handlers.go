@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (con *AuthController) LoginHandler(c *gin.Context) {
+func (con *authController) LoginHandler(c *gin.Context) {
 	var user AuthUser
 
 	if err := c.BindJSON(&user); err != nil {

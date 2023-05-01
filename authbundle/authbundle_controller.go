@@ -5,8 +5,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// ToDo make private
-type AuthController struct {
+type authController struct {
 	core.Controller
 	OrmDb gorm.DB
+}
+
+func newAuthController(ormDb *gorm.DB) *authController {
+	con := &authController{
+		OrmDb: *ormDb,
+	}
+
+	ormDb.AutoMigrate(&AuthUser{})
+
+	return con
 }

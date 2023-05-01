@@ -15,6 +15,6 @@ func GenerateJWT(user AuthUser) (string, error) {
 		"authorized": true,
 	})
 
-	key := core.Config.Server.JWTPrivateKey
+	key := []byte(core.Config.Server.JWTPrivateKey)
 	return token.SignedString(key)
 }
