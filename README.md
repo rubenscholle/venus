@@ -9,6 +9,5 @@
 - re-run
 
 # To-Do list
-- option routes
 - websocketbundle
 - add permissions to routes
