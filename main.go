@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rubenscholle/venus/authbundle"
 	core "github.com/rubenscholle/venus/corebundle"
@@ -22,6 +23,17 @@ func main() {
 	log.Println("starting server...")
 
 	router := gin.Default()
+
+	// Add CORS support to all routes
+	router.Use(
+		cors.New(cors.Config{
+			AllowAllOrigins:  true,
+			AllowCredentials: true,
+			AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, http.MethodPatch, http.MethodHead, http.MethodOptions},
+			AllowHeaders:     []string{"Origin"},
+			ExposeHeaders:    []string{"Content-Length"},
+		}),
+	)
 
 	publicRoutes := router.Group("/auth")
 	protectedRoutes := router.Group("/api/v1")
