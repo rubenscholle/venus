@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rubenscholle/venus/authbundle"
 	core "github.com/rubenscholle/venus/corebundle"
+	"github.com/rubenscholle/venus/websocketbundle"
 )
 
 func main() {
@@ -40,6 +41,7 @@ func main() {
 	protectedRoutes.Use(authbundle.Middleware())
 
 	authbundle.InitBundle(publicRoutes, protectedRoutes.Group("auth"), core.OrmDb)
+	websocketbundle.InitBundle(publicRoutes, protectedRoutes.Group("websocket"), core.OrmDb)
 
 	protectedRoutes.GET("/hello-world", helloWorldHandler)
 	router.Run(":7901")
