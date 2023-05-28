@@ -11,6 +11,8 @@ type websocketController struct {
 	OrmDb gorm.DB
 }
 
+var manager *wsManager
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -20,6 +22,8 @@ func newWebsocketController(ormDb *gorm.DB) *websocketController {
 	con := &websocketController{
 		OrmDb: *ormDb,
 	}
+
+	manager = newWsManager()
 
 	//ormDb.AutoMigrate(&{})
 
