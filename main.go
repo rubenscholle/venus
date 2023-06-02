@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -44,7 +45,7 @@ func main() {
 	websocketbundle.InitBundle(publicRoutes, protectedRoutes.Group("websocket"), core.OrmDb)
 
 	protectedRoutes.GET("/hello-world", helloWorldHandler)
-	router.Run(":7901")
+	router.Run(fmt.Sprintf(":%d", core.Config.Server.Port))
 }
 
 func helloWorldHandler(c *gin.Context) {

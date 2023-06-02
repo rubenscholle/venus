@@ -14,6 +14,7 @@ type SystemConfiguration struct {
 }
 
 type ServerConfiguration struct {
+	Port          uint   `json:"port"`
 	TokenTTL      uint   `json:"token_ttl"`
 	JWTPrivateKey string `json:"jwt_private_key"`
 }
