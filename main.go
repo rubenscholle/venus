@@ -49,5 +49,5 @@ func main() {
 }
 
 func versionHandler(c *gin.Context) {
-	c.String(http.StatusOK, "v0.1.1c")
+	c.String(http.StatusOK, "v0.1.1d")
 }
