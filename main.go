@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rubenscholle/venus/authbundle"
 	core "github.com/rubenscholle/venus/corebundle"
+	"github.com/rubenscholle/venus/websocketbundle"
 )
 
 func main() {
@@ -40,11 +42,12 @@ func main() {
 	protectedRoutes.Use(authbundle.Middleware())
 
 	authbundle.InitBundle(publicRoutes, protectedRoutes.Group("auth"), core.OrmDb)
+	websocketbundle.InitBundle(publicRoutes, protectedRoutes.Group("websocket"), core.OrmDb)
 
-	protectedRoutes.GET("/hello-world", helloWorldHandler)
-	router.Run(":7901")
+	protectedRoutes.GET("/version", versionHandler)
+	router.Run(fmt.Sprintf(":%d", core.Config.Server.Port))
 }
 
-func helloWorldHandler(c *gin.Context) {
-	c.String(http.StatusOK, "hello world!\nthis is a RESTful API by Ruben Scholle")
+func versionHandler(c *gin.Context) {
+	c.String(http.StatusOK, "v0.1.1d")
 }
