@@ -6,9 +6,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Add frontend related events here
+const (
+	wsEventSendMessage = 1
+)
+
 type wsClient struct {
 	connection *websocket.Conn
 	manager    *wsManager
+
+	// avoid multiple send processes at once
+	sends chan []byte
 }
 
 type wsClientsMap map[*wsClient]bool
@@ -19,4 +27,14 @@ type wsManager struct {
 
 	// ToDo use channels instead?
 	sync.RWMutex
+
+	// handlers are functions that are used to handle Events
+	messageEvents map[uint]wsMessageEventHandler
 }
+
+type wsMessageEvent struct {
+	MessageType uint   `json:"message_type"`
+	Content     string `json:"content"`
+}
+
+type wsMessageEventHandler func(message wsMessageEvent, c *wsClient) error
