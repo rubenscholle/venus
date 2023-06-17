@@ -8,7 +8,8 @@ import (
 
 // Add frontend related events here
 const (
-	wsEventSendMessage = 1
+	wsEventSendTextMessage = 1
+	wsEventSendPongMessage = 10
 )
 
 type wsClient struct {

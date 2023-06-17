@@ -4,9 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+)
+
+const (
+	pongWait = 10 * time.Second
+
+	pingInterval = (pongWait * 9) / 10
 )
 
 // newWsClient initialites a wsClient object representing a frontend client connected via websocket
@@ -49,16 +56,16 @@ func (m *wsManager) serveWs(c *gin.Context) {
 
 // setupEventHandlers configures and adds all handlers
 func (m *wsManager) setupEventHandlers() {
-	m.messageEvents[wsEventSendMessage] = func(message wsMessageEvent, c *wsClient) error {
+	m.messageEvents[wsEventSendTextMessage] = func(message wsMessageEvent, c *wsClient) error {
 		// ToDo
-		log.Println(message)
+		log.Println("text message received via websocket")
 		return nil
 	}
 }
 
 // routeWsMessageEvent is used to make sure the correct event goes into the correct handler
 func (m *wsManager) routeWsMessageEvent(message wsMessageEvent, c *wsClient) error {
-	// Check if Handler is present in Map
+	// check if Handler is present in Map
 	if handler, ok := m.messageEvents[message.MessageType]; ok {
 		if err := handler(message, c); err != nil {
 			return err
@@ -84,7 +91,7 @@ func (m *wsManager) removeClient(client *wsClient) {
 	m.Lock()
 	defer m.Unlock()
 
-	// Check if Client exists, then delete it
+	// check if Client exists, then delete it
 	if _, ok := m.clients[client]; ok {
 		client.connection.Close()
 		delete(m.clients, client)
@@ -94,11 +101,22 @@ func (m *wsManager) removeClient(client *wsClient) {
 func (c *wsClient) readMessage() {
 	defer c.manager.removeClient(c)
 
+	// limit long websocket messages
+	c.connection.SetReadLimit(512)
+
+	// set initial ping timer
+	if err := c.connection.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		log.Println(err)
+		return
+	}
+
+	c.connection.SetPongHandler(c.pongHandler)
+
 	for {
 		_, payload, err := c.connection.ReadMessage()
 
 		if err != nil {
-			// to not log disconnects
+			// disconnects should not be logged
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println(err)
 			}
@@ -118,15 +136,18 @@ func (c *wsClient) readMessage() {
 }
 
 func (c *wsClient) writeMessages() {
-	defer c.manager.removeClient(c)
+	ticker := time.NewTicker(pingInterval)
+
+	defer func() {
+		ticker.Stop()
+
+		c.manager.removeClient(c)
+	}()
 
 	for {
-
-		// add other cases later
 		select {
 		case rawMessage, ok := <-c.sends:
 			if !ok {
-				// Manager has closed connection channel
 				if err := c.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
 					log.Println(err)
 				}
@@ -137,12 +158,23 @@ func (c *wsClient) writeMessages() {
 			message, err := json.Marshal(rawMessage)
 			if err != nil {
 				log.Println(err)
-				return // closes the connection, should we really
+				return
 			}
 
 			if err := c.connection.WriteMessage(websocket.TextMessage, message); err != nil {
 				log.Println(err)
 			}
+
+		case <-ticker.C:
+			if err := c.connection.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				log.Println(err)
+				return
+			}
 		}
 	}
+}
+
+// pongHandler resets wait time before closing the websocket every time the client reponds with a pong
+func (c *wsClient) pongHandler(pongMsg string) error {
+	return c.connection.SetReadDeadline(time.Now().Add(pongWait))
 }
