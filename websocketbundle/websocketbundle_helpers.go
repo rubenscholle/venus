@@ -3,11 +3,15 @@ package websocketbundle
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+
+	core "github.com/rubenscholle/venus/corebundle"
 )
 
 const (
@@ -155,13 +159,7 @@ func (c *wsClient) writeMessages() {
 				return
 			}
 
-			message, err := json.Marshal(rawMessage)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			if err := c.connection.WriteMessage(websocket.TextMessage, message); err != nil {
+			if err := c.connection.WriteMessage(websocket.TextMessage, rawMessage); err != nil {
 				log.Println(err)
 			}
 
@@ -177,4 +175,27 @@ func (c *wsClient) writeMessages() {
 // pongHandler resets wait time before closing the websocket every time the client reponds with a pong
 func (c *wsClient) pongHandler(pongMsg string) error {
 	return c.connection.SetReadDeadline(time.Now().Add(pongWait))
+}
+
+// deprecated
+// checkOrigin check if websocket connection origin is valid
+func checkOrigin(r *http.Request) bool {
+
+	// Grab the request origin
+	origin := r.Header.Get("Origin")
+
+	switch origin {
+	case fmt.Sprintf("ws://localhost:%d", core.Config.Server.Port), fmt.Sprintf("wss://localhost:%d", core.Config.Server.Port):
+		return true
+	default:
+		return false
+	}
+}
+
+func BroadcastEventMessage(message string) {
+	currentClients := manager.clients
+
+	for client, _ := range currentClients {
+		client.sends <- []byte(message)
+	}
 }

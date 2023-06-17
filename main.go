@@ -50,4 +50,5 @@ func main() {
 
 func versionHandler(c *gin.Context) {
 	c.String(http.StatusOK, "v0.1.1d")
+	go websocketbundle.BroadcastEventMessage("NEW VERSION")
 }
